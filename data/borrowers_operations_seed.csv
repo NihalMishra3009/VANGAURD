@@ -1,0 +1,6 @@
+borrower_id,name,phone,preferred_language,emi_amount,outstanding_amount,due_date,account_number
+BW-MUM-1001,Aarav Sharma,9820112233,Hindi,12500,45000,2026-11-15,LON-MUM-88210
+BW-BLR-1002,Priya Nair,9845012345,English,8500,24000,2026-11-18,LON-BLR-44102
+BW-PUN-1003,Rohan Deshmukh,9890123456,Marathi,15000,60000,2026-11-10,LON-PUN-99304
+BW-DEL-1004,Kavita Gupta,9811098765,Hindi,6000,18000,2026-11-20,LON-DEL-11029
+BW-HYD-1005,Vikram Reddy,9849087654,English,22000,95000,2026-11-05,LON-HYD-77312

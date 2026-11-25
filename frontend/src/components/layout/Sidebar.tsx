@@ -10,7 +10,8 @@ import {
   Eye,
   FileSpreadsheet,
   FileText,
-  ShieldCheck
+  ShieldCheck,
+  Cpu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -23,26 +24,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
   const { user } = useAuth();
 
   const navItems = [
-    { id: 'dashboard', label: 'Main Dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'HUMAN_COLLECTOR', 'SUPERVISOR'] },
+    { id: 'dashboard', label: 'Overview', icon: LayoutDashboard, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'HUMAN_COLLECTOR', 'SUPERVISOR'] },
+    { id: 'simulation', label: 'Live AI Calling', icon: Headphones, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'HUMAN_COLLECTOR', 'SUPERVISOR'], badge: 'Live Voice' },
     { id: 'borrowers', label: 'Borrower Directory', icon: Users, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
-    { id: 'upload', label: 'Excel Upload', icon: UploadCloud, roles: ['ADMIN', 'CAMPAIGN_MANAGER'] },
     { id: 'campaigns', label: 'Campaign Engine', icon: Megaphone, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
     { id: 'queue', label: 'Calling Queue', icon: PhoneCall, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
-    { id: 'simulation', label: 'Live AI Calling', icon: Headphones, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'HUMAN_COLLECTOR', 'SUPERVISOR'] },
-    { id: 'voice-intelligence', label: 'Voice Intelligence', icon: Activity, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
-    { id: 'collector-pod', label: 'Human Collector Pod', icon: Headphones, roles: ['ADMIN', 'HUMAN_COLLECTOR', 'SUPERVISOR'] },
+    { id: 'collector-pod', label: 'Specialist Pod', icon: Headphones, roles: ['ADMIN', 'HUMAN_COLLECTOR', 'SUPERVISOR'] },
     { id: 'supervisor', label: 'Supervisor Monitor', icon: Eye, roles: ['ADMIN', 'SUPERVISOR'] },
-    { id: 'reports', label: 'Excel Reports', icon: FileSpreadsheet, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
-    { id: 'audit-logs', label: 'Audit Trail', icon: FileText, roles: ['ADMIN', 'SUPERVISOR'] },
-    { id: 'security', label: 'Security & Access', icon: ShieldCheck, roles: ['ADMIN'] },
+    { id: 'upload', label: 'Data Ingestion', icon: UploadCloud, roles: ['ADMIN', 'CAMPAIGN_MANAGER'] },
+    { id: 'voice-intelligence', label: 'Acoustic SER Lab', icon: Activity, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
+    { id: 'reports', label: 'Audit Reports', icon: FileSpreadsheet, roles: ['ADMIN', 'CAMPAIGN_MANAGER', 'SUPERVISOR'] },
+    { id: 'audit-logs', label: 'Event Ledger', icon: FileText, roles: ['ADMIN', 'SUPERVISOR'] },
+    { id: 'security', label: 'Policy Engine', icon: ShieldCheck, roles: ['ADMIN'] },
   ];
 
   const allowedItems = navItems.filter(item => user && item.roles.includes(user.role));
 
   return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between py-4 select-none">
-      <div className="space-y-1 px-3">
-        <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Platform Modules</p>
+    <aside className="w-64 bg-[#0c0d14] border-r border-zinc-800/80 flex flex-col justify-between py-5 select-none shrink-0">
+      <div className="space-y-1.5 px-3">
+        <div className="px-3 pb-2 flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Workspace</p>
+          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-400 border border-zinc-700/50">PROD-ENV</span>
+        </div>
         {allowedItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -50,27 +54,48 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-left cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all text-left cursor-pointer group ${
                 isActive
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-zinc-800/90 text-white border border-zinc-700/80 shadow-sm shadow-black/40'
+                  : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/40'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-400'}`} />
-              <span>{item.label}</span>
+              <div className="flex items-center gap-3">
+                <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-emerald-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                <span>{item.label}</span>
+              </div>
+              {item.badge && (
+                <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded tracking-wide ${
+                  isActive
+                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold'
+                    : 'bg-zinc-800 text-zinc-400'
+                }`}>
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      <div className="px-6 pt-4 border-t border-slate-800">
-        <div className="p-3 bg-slate-950/60 rounded-lg border border-slate-800 text-[11px] text-slate-400 space-y-1">
-          <p className="font-semibold text-slate-300">Phase 1 Foundation</p>
-          <p>Auth & RBAC Active</p>
-          <p>PostgreSQL 17.6</p>
-          <div className="pt-1 flex items-center gap-1.5 text-indigo-400 font-mono text-[10px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            Zero Cloud Leakage
+      <div className="px-4 pt-4 border-t border-zinc-850">
+        <div className="p-3.5 bg-zinc-900/70 rounded-xl border border-zinc-800/80 text-xs text-zinc-400 space-y-2">
+          <div className="flex items-center justify-between text-[11px] font-medium text-zinc-300">
+            <span className="flex items-center gap-1.5">
+              <Cpu className="w-3.5 h-3.5 text-emerald-400" />
+              YUNCOX Engine
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500">SER Baseline</span>
+          </div>
+          <p className="text-[10px] text-zinc-500 leading-relaxed">
+            Deterministic safety overrides outrank AI generation. Transcript texts are not fed into SER.
+          </p>
+          <div className="pt-1 flex items-center justify-between border-t border-zinc-800 text-[10px] font-mono text-zinc-400">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Acoustic Active
+            </span>
+            <span className="text-zinc-500">v1.2</span>
           </div>
         </div>
       </div>

@@ -7,6 +7,10 @@ import { BorrowerUploadPage } from './pages/BorrowerUploadPage';
 import { BorrowersPage } from './pages/BorrowersPage';
 import { CampaignsPage } from './pages/CampaignsPage';
 import { CampaignDetailPage } from './pages/CampaignDetailPage';
+import { SimulatedCallConsole } from './pages/SimulatedCallConsole';
+import { CollectorPodPage } from './pages/CollectorPodPage';
+import { SupervisorMonitoringPage } from './pages/SupervisorMonitoringPage';
+import { ReportingPage } from './pages/ReportingPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 import { AppLayout } from './components/layout/AppLayout';
 
@@ -55,22 +59,10 @@ const AppContent: React.FC = () => {
           />
         );
       case 'queue':
-        return (
-          <PlaceholderPage
-            title="Sequential Calling Queue"
-            moduleName="Module C"
-            description="Real-time sequential queue with priority dispatching and duplicate-call prevention."
-            targetPhase="Phase 3 Scheduled"
-            onBack={() => setCurrentView('dashboard')}
-          />
-        );
       case 'simulation':
         return (
-          <PlaceholderPage
-            title="Simulated AI Calling Console"
-            moduleName="Module D"
-            description="Browser-based live call simulation using microphone and audio output with real-time waveform visualization."
-            targetPhase="Phase 3 Scheduled"
+          <SimulatedCallConsole
+            campaignId={selectedCampaignId || 1}
             onBack={() => setCurrentView('dashboard')}
           />
         );
@@ -80,40 +72,16 @@ const AppContent: React.FC = () => {
             title="Voice Intelligence & Acoustic Analysis"
             moduleName="Module F"
             description="Sliding audio window paralinguistic analysis (Pitch, Energy, Arousal, Valence) independent of transcripts."
-            targetPhase="Phase 5 Scheduled"
+            targetPhase="Phase 5 Completed Backend"
             onBack={() => setCurrentView('dashboard')}
           />
         );
       case 'collector-pod':
-        return (
-          <PlaceholderPage
-            title="Human Collector Pod"
-            moduleName="Module I"
-            description="Collector workstation for receiving and managing seamless live escalations from the AI calling engine."
-            targetPhase="Phase 6 Scheduled"
-            onBack={() => setCurrentView('dashboard')}
-          />
-        );
+        return <CollectorPodPage />;
       case 'supervisor':
-        return (
-          <PlaceholderPage
-            title="Supervisor Real-Time Monitoring"
-            moduleName="Module M / J"
-            description="Live oversight dashboard showing active calls, borrower safety alerts, collector monitoring, and intervention controls."
-            targetPhase="Phase 9 Scheduled"
-            onBack={() => setCurrentView('dashboard')}
-          />
-        );
+        return <SupervisorMonitoringPage />;
       case 'reports':
-        return (
-          <PlaceholderPage
-            title="Excel Banking Reports"
-            moduleName="Module N"
-            description="Generate multi-tab Excel workbooks covering Borrowers, Campaigns, Call History, Acoustic Voice Analysis, and Commitments."
-            targetPhase="Phase 10 Scheduled"
-            onBack={() => setCurrentView('dashboard')}
-          />
-        );
+        return <ReportingPage />;
       case 'security':
         return (
           <PlaceholderPage

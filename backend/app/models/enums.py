@@ -20,6 +20,7 @@ class CampaignStatus(str, Enum):
 class CallStatus(str, Enum):
     PENDING = "PENDING"
     QUEUED = "QUEUED"
+    INITIATED = "INITIATED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"

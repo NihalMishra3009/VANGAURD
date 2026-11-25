@@ -1,6 +1,28 @@
 # VOXGUARD — Development Log
 
-## 2026-11-24: Phase 1 — Foundation & Authentication
+## 2026-11-24: Phase 3 to 10 — Conversational Voice Agent, Acoustic SER, Deterministic Safety & SaaS UI
+- **Natural Conversational Recovery Engine**:
+  - Implemented `ConversationalRecoveryAgent` in `voice_engine/conversational_agent.py` communicating via local Ollama (`qwen2.5:3b`).
+  - Strict natural recovery officer persona: Introduces as an Axis Bank customer operations executive speaking in empathetic, respectful Hindi/Hinglish regarding overdue payments. Never says "I am an AI bot".
+  - Implemented rule-based conversational fallback if local LLM is temporarily saturated or busy.
+- **Acoustic SER Intelligence (YUNCOX Adapter)**:
+  - Built `BaseEmotionModel` interface in `voice_engine/interfaces.py` for fully swappable SER engines.
+  - Built `YuncoxEmotionAdapter` in `voice_engine/yuncox_adapter.py` extracting raw acoustic energy (RMS), pitch $F_0$ via autocorrelation, spectral centroid, and zero-crossing rate.
+  - Strict compliance constraint: Arousal and valence are explicitly marked as `Unsupported (Not Fabricated)` to prevent unscientific hallucinations from 4-class SER baseline. Transcript text is strictly excluded from emotion classification.
+- **Deterministic Safety Engine (SAHAY Architecture Reference)**:
+  - Built `DeterministicSafetyEngine` in `safety_engine/deterministic_policy.py`.
+  - Five deterministic safety actions: `STOP_CONTACT`, `HUMAN_HANDOFF`, `SUPERVISOR_REVIEW`, `PAUSE`, `SAFE_TERMINATION`.
+  - Policy decisions strictly override generative text; on sustained acoustic anger or borrower distress, collection pressure is instantly halted and handed off to human specialists.
+- **Interactive Calling Workstation UI**:
+  - Transformed `SimulatedCallConsole.tsx` into a dark obsidian SaaS workstation (`#090a0f` / `#0c0d14` background, `zinc-800` borders, emerald and amber status chips).
+  - Integrated browser microphone speech recognition (`webkitSpeechRecognition` with `hi-IN` locale).
+  - Integrated real-time Web Audio Analyser measuring live acoustic RMS energy from microphone input.
+  - Added real-time animated waveform canvas displaying active microphone input and safety triggers.
+  - Added direct browser voice synthesis (`speechSynthesis`) to speak out responses in natural conversational tone.
+- **Testing & Quality Assurance**:
+  - Added `backend/tests/test_calling_queue.py` and `backend/tests/test_safety_and_emotion.py`.
+  - All 15 backend tests passing cleanly in `backend/tests/` (100% test pass rate).
+  - Verified clean TypeScript build (`npm run build` compiled 2210 modules with 0 errors).
 - **Environment**: Windows 11, Python 3.11.9, Node.js 26.4.0, PostgreSQL 17.6, NVIDIA RTX 3050 Laptop GPU (4 GB VRAM).
 - **Architecture**: Modular monolith created (`backend/app/{core, database, models, schemas, repositories, services, api, agents, voice, safety, calling, monitoring, reporting}`).
 - **Database**: Initialized PostgreSQL `voxguard` database with 14 tables and seeded 4 role accounts (`admin@voxguard.bank`, `campaign@voxguard.bank`, `collector@voxguard.bank`, `supervisor@voxguard.bank`).
@@ -54,7 +76,38 @@
   - Pyright static analysis (`npx pyright backend/app/models/`): 0 errors, 0 warnings, 0 informations.
   - Backend pytest test suite: 9/9 tests passed in 4.15s against PostgreSQL.
 
-## 2026-11-24: Local Application Startup & Live End-to-End Workflow Verification
+## 2026-11-24: Borrower Batch CSV Seeding, Voice Dialogue Engine & Dynamic Handoff
+- **Borrower Dataset Ingestion**:
+  - Created and seeded `data/borrowers_operations_seed.csv` with 5 realistic Indian banking borrower records across major metropolitan hubs (Mumbai, Bengaluru, Pune, Delhi, Hyderabad) with registered phones, outstanding loans (₹18,000 – ₹95,000), account references, and preferred dialects (Hindi, English, Marathi).
+  - Enrolled borrowers in the active campaign calling queue (`November High-Priority Recovery`).
+- **Interactive Conversational AI & Live Acoustic Intelligence**:
+  - Implemented `/api/v1/calling/sessions/dialogue` in `backend/app/api/v1/calling.py`.
+  - Integrates `YuncoxEmotionAdapter` analyzing audio acoustic signals in real-time.
+  - Coupled directly to `DeterministicSafetyEngine` to halt AI collection prompts and trigger instant human handoffs on explicit human requests, distress persistence, or legal stop-contact assertions.
+- **Frontend Live AI Calling Console**:
+  - Upgraded `SimulatedCallConsole.tsx` with two-way conversational message log, real-time audio waveform canvas, quick test triggers ("Will pay tomorrow", "Request Human", "Agitated / Stop Contact"), and browser SpeechSynthesis voice narration.
+- **End-to-End Verification**:
+  - Verified live call flow: Borrower retrieval -> Call initiation -> Dialogue turn with repayment commitment -> Dialogue turn with human handoff trigger -> Distress / stop-contact trigger -> Safe termination and lock release.
+  - Frontend TypeScript build: 2210 modules cleanly transformed with 0 errors.
+
+- **Sequential Calling Queue & Lock Management**:
+  - Implemented `CallingQueueService` in `backend/app/services/calling_queue_service.py` with priority dispatching, retry counting, cooling-off adherence, and borrower active call lock acquisition (`is_active_call`).
+  - Implemented `/api/v1/calling/queue/next/{campaign_id}`, `/api/v1/calling/sessions/initiate`, and `/api/v1/calling/sessions/terminate` with RBAC protection and audit trails.
+  - Confirmed duplicate simultaneous call prevention (returns HTTP 409 Conflict when attempting to initiate concurrent calls on a locked borrower).
+- **YUNCOX Model Inspection & Speech Emotion Engine Architecture**:
+  - Inspected YUNCOX candidate (Wav2Vec2 + MFCC + SVM for 4 emotion classes: angry, happy, neutral, sad).
+  - Documented strict limitations in `docs/YUNCOX_AND_EMOTION_SPEC.md`: absence of streaming support, absence of continuous arousal/valence, absence of distress calibration, and lack of validation on Indian telephone channels.
+  - Built decoupled abstract model interface `BaseEmotionModel` and standardized `EmotionPrediction` in `voice_engine/interfaces.py`.
+  - Built `AcousticFeatureExtractor` in `acoustic_analysis/feature_extractor.py` extracting pitch F0, energy RMS, zero crossing rate, spectral centroid, and SNR directly from audio frames.
+  - Built `YuncoxEmotionAdapter` in `voice_engine/yuncox_adapter.py` respecting all guidelines: strictly leaves arousal/valence as `None` (no fabricated values), flags uncertainty for low SNR/clipping, and allows zero-downtime model swaps.
+- **Deterministic Safety Engine**:
+  - Implemented `DeterministicSafetyEngine` in `safety_engine/deterministic_policy.py` adhering to SAHAY architectural principles.
+  - Rules strictly outrank conversational AI: Stop-contact assertions, explicit human requests, debt disputes, sustained acoustic distress, and signal uncertainty trigger immutable safety outcomes (`STOP_CONTACT`, `HUMAN_HANDOFF`, `SUPERVISOR_REVIEW`, `PAUSE`, `SAFE_TERMINATION`).
+  - Added safe fallback mechanism when no human collector is available (gracefully halts pressure and schedules a priority callback).
+- **Automated Test Verification**:
+  - 15/15 unit and integration tests passing in `backend/tests` (100% pass rate in 9.89s).
+  - Frontend TypeScript build verified compiling cleanly (`npm run build`: 2206 modules transformed, 0 errors).
+
 - **Runtime Services**:
   - Started Uvicorn FastAPI backend on `http://127.0.0.1:8000` via Windows PowerShell background daemon with `--reload`.
   - Started Vite React frontend dev server on `http://localhost:5173` via Windows PowerShell background daemon with reverse proxying (`/api` -> `8000`, `/ws` -> `8000`).
